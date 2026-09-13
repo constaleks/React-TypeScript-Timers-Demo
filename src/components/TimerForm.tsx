@@ -6,7 +6,7 @@ import { useTimersContext } from '@/store/TimersContext';
 import { useRef, useState, type ChangeEvent, type SubmitEvent } from 'react';
 
 function TimerForm() {
-    const formRef = useRef(null);
+    const formRef = useRef<HTMLFormElement>(null);
     const { addTimer } = useTimersContext();
 
     const [name, setName] = useState('');
@@ -22,6 +22,10 @@ function TimerForm() {
 
     const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (name === '' || duration === '' || isNaN(+duration) || Number(duration) <= 0) {
+            return;
+        }
+
         addTimer({
             id: crypto.randomUUID(),
             name: name,
@@ -41,7 +45,7 @@ function TimerForm() {
 
                 <Field>
                     <FieldLabel htmlFor="duration">Duration</FieldLabel>
-                    <Input id="duration" type="number" placeholder="Enter duration" value={duration} onChange={handleChange} />
+                    <Input id="duration" type="number" placeholder="Enter duration (seconds)" value={duration} onChange={handleChange} />
                     <FieldDescription>Set a duration for your timer</FieldDescription>
                 </Field>
             </div>
