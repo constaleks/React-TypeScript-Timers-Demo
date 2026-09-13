@@ -7,7 +7,9 @@ function Header() {
     return (
         <div className="flex justify-around w-full">
             <h1 className="text-lg font-semibold">Timers Demo</h1>
-            <Button>{timersCtx.isRunning ? 'Stop' : 'Start'} Timers</Button>
+            <Button onClick={timersCtx.isRunning ? timersCtx.stopTimers : timersCtx.startTimers}>
+                {timersCtx.isRunning ? 'Stop' : 'Start'} Timers
+            </Button>
         </div>
     );
 }

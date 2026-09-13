@@ -2,19 +2,46 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
+import { useTimersContext } from '@/store/TimersContext';
+import { useRef, useState, type ChangeEvent, type SubmitEvent } from 'react';
+
 function TimerForm() {
+    const formRef = useRef(null);
+    const { addTimer } = useTimersContext();
+
+    const [name, setName] = useState('');
+    const [duration, setDuration] = useState('');
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.id === 'name') {
+            setName(e.target.value);
+        } else {
+            setDuration(e.target.value);
+        }
+    };
+
+    const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        addTimer({
+            id: crypto.randomUUID(),
+            name: name,
+            duration: Number(duration),
+        });
+        formRef.current?.reset();
+    };
+
     return (
-        <form className="space-y-3 w-full flex flex-col items-end">
+        <form onSubmit={handleSubmit} className="space-y-3 w-full flex flex-col items-end" ref={formRef}>
             <div className="flex gap-4 w-full">
                 <Field>
                     <FieldLabel htmlFor="name">Name</FieldLabel>
-                    <Input id="name" type="text" placeholder="Enter name" />
+                    <Input id="name" type="text" placeholder="Enter name" value={name} onChange={handleChange} />
                     <FieldDescription>Set a name for your timer</FieldDescription>
                 </Field>
 
                 <Field>
                     <FieldLabel htmlFor="duration">Duration</FieldLabel>
-                    <Input id="duration" type="number" placeholder="Enter duration" />
+                    <Input id="duration" type="number" placeholder="Enter duration" value={duration} onChange={handleChange} />
                     <FieldDescription>Set a duration for your timer</FieldDescription>
                 </Field>
             </div>
