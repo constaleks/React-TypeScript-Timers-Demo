@@ -1,9 +1,15 @@
-import { createContext, useContext, useReducer, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 import type { Timer } from '@/types';
+
+const TICK_INTERVAL = 50;
+
+interface TimerRecord extends Timer {
+    time: number;
+}
 
 interface TimersState {
     isRunning: boolean;
-    timers: Timer[];
+    timers: TimerRecord[];
 }
 
 const initialState: TimersState = {
@@ -30,7 +36,7 @@ export function useTimersContext() {
 }
 
 type TimersAction = {
-    type: 'start_timers' | 'stop_timers';
+    type: 'start_timers' | 'stop_timers' | 'tick';
 };
 type AddTimerAction = {
     type: 'add_timer';
@@ -54,6 +60,16 @@ function timersReducer(state: TimersState, action: Action): TimersState {
         };
     }
 
+    if (action.type === 'tick') {
+        return {
+            ...state,
+            timers: state.timers.map((timer) => ({
+                ...timer,
+                time: Math.max(timer.time - TICK_INTERVAL, 0),
+            })),
+        };
+    }
+
     if (action.type === 'add_timer') {
         return {
             ...state,
@@ -63,6 +79,7 @@ function timersReducer(state: TimersState, action: Action): TimersState {
                     id: action.payload.id,
                     name: action.payload.name,
                     duration: action.payload.duration,
+                    time: action.payload.duration * 1000,
                 },
             ],
         };
@@ -77,6 +94,18 @@ interface TimersContextProviderProps {
 
 function TimersContextProvider({ children }: TimersContextProviderProps) {
     const [timersState, dispatch] = useReducer(timersReducer, initialState);
+
+    useEffect(() => {
+        if (!timersState.isRunning) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            dispatch({ type: 'tick' });
+        }, TICK_INTERVAL);
+
+        return () => clearInterval(interval);
+    }, [timersState.isRunning]);
 
     const ctx: TimersContextValue = {
         timers: timersState.timers,

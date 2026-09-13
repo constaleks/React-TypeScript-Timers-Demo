@@ -3,10 +3,9 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 
 import { useTimersContext } from '@/store/TimersContext';
-import { useRef, useState, type ChangeEvent, type SubmitEvent } from 'react';
+import { useState, type ChangeEvent, type SubmitEvent } from 'react';
 
 function TimerForm() {
-    const formRef = useRef<HTMLFormElement>(null);
     const { addTimer } = useTimersContext();
 
     const [name, setName] = useState('');
@@ -31,11 +30,12 @@ function TimerForm() {
             name: name,
             duration: Number(duration),
         });
-        formRef.current?.reset();
+        setName('');
+        setDuration('');
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-3 w-full flex flex-col items-end" ref={formRef}>
+        <form onSubmit={handleSubmit} className="space-y-3 w-full flex flex-col items-end">
             <div className="flex gap-4 w-full">
                 <Field>
                     <FieldLabel htmlFor="name">Name</FieldLabel>
